@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	"github.com/crowdsecurity/crowdsec/pkg/types"
+	"github.com/crowdsecurity/crowdsec/pkg/yamlpatch"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -61,12 +61,12 @@ type bouncerConfig struct {
 func newConfig(configPath string) (*bouncerConfig, error) {
 	config := &bouncerConfig{}
 
-	configBuff, err := ioutil.ReadFile(configPath)
+	patcher := yamlpatch.NewPatcher(configPath, ".local")
+	fcontent, err := patcher.MergedPatchContent()
 	if err != nil {
-		return &bouncerConfig{}, errors.Wrapf(err, "failed to read %s", configPath)
+		return &bouncerConfig{}, err
 	}
-
-	err = yaml.Unmarshal(configBuff, &config)
+	err = yaml.Unmarshal(fcontent, &config)
 	if err != nil {
 		return &bouncerConfig{}, errors.Wrapf(err, "failed to unmarshal %s", configPath)
 	}
