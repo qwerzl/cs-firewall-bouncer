@@ -26,6 +26,8 @@ check_pkg_manager(){
         PKG="yum"
     elif [ -f /etc/debian_version ]; then
         PKG="apt"
+    elif grep -q "openSUSE" </etc/os-release; then
+        PKG="zypper"
     else
         echo "Distribution is not supported, exiting."
         exit
